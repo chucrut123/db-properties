@@ -5,13 +5,13 @@ import pandas as pd
 import exchange_rates
 from datetime import date
 
+
 def main():
 
     if len(sys.argv) == 1:
         print("Usage: python3 main.py <property_type1> <property_type2> ...")
         sys.exit(1)
 
-    
     # Rates
     rates = exchange_rates.get_exchange_rates()
 
@@ -38,7 +38,6 @@ def main():
     conn.close()
 
     print("Data written to the database")
-
 
 
 main()
