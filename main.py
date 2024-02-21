@@ -12,7 +12,7 @@ def main():
         print("Usage: python3 main.py <property_type1> <property_type2> ...")
         sys.exit(1)
 
-    # Rates
+    # Dict holding exchange rates
     rates = exchange_rates.get_exchange_rates()
 
     # Properties types to be extracted
