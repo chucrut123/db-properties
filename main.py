@@ -15,7 +15,6 @@ def main():
         print("Usage: python3 main.py <command_order> <property_type1> <property_type2> ...")
         sys.exit(1)
 
-
     # Extraction part
     if sys.argv[1] == "-extract":
 
@@ -53,16 +52,14 @@ def main():
             print("Usage: python3 main.py -csv <YYYY-MM-DD>")
             sys.exit(1)
 
+        # Get the date from the command line
         req_date = sys.argv[2]
         
         conn = sqlite3.connect("properties.db")
-
         cursor = conn.cursor()
 
         cursor.execute(f"SELECT * FROM properties WHERE date = '{req_date}'")
-
         rows = cursor.fetchall()
-
         columns = (description[0] for description in cursor.description)
 
         if rows == []:
