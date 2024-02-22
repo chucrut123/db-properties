@@ -28,7 +28,7 @@ def main():
 
     # Extract, clean and add date to data from website
     df = scrapper.extract_data(property_types)
-    df = scrapper.data_cleaner(df, UFtoCLP=36732.6, USDtoCLP=959.86)
+    df = scrapper.data_cleaner(df, UFtoCLP=rates["UF"], USDtoCLP=rates["USD"])
     df["date"] = date.today()
 
     # Write the data to the database
