@@ -25,6 +25,21 @@ property_types = (
     "terreno-industrial",
 )
 
+# Setting up DataFrame for storing the extracted data
+df_columns = (
+    "price",
+    "comuna",
+    "ubicacion",
+    "dorms",
+    "baths",
+    "built_area",
+    "total_area",
+    "parking",
+    "id",
+    "realtor",
+    "property_type",
+)
+
 
 # Function to extract numbers from a string
 def return_numbers(str_number: str) -> list[int]:
@@ -200,22 +215,9 @@ def find_realtor(property: str) -> str:
 def extract_data(property_types: dict[str, int]) -> pd.DataFrame:
     """Extract data from the website and stores it in a Pandas DataFrame"""
 
-    # Setting up DataFrame for storing the extracted data
-    columns = [
-        "price",
-        "comuna",
-        "ubicacion",
-        "dorms",
-        "baths",
-        "built_area",
-        "total_area",
-        "parking",
-        "id",
-        "realtor",
-        "property_type",
-    ]
+    pages_errors = []
 
-    properties_df = pd.DataFrame(columns=columns)
+    properties_df = pd.DataFrame(columns=df_columns)
 
     for property_type, num_pages in property_types.items():
         print(f"Extracting property type: {property_type}\n")
@@ -227,6 +229,83 @@ def extract_data(property_types: dict[str, int]) -> pd.DataFrame:
             sleep(2)
 
             print(f"pagina: {page}", end="\r")
+
+
+            url = f"https://chilepropiedades.cl/propiedades/venta/{property_type}/region-metropolitana-de-santiago-rm/{page}"
+
+            # Set up custom headers with a User-Agent
+            # and make a GET request to the specified URL, storing the response text.
+            headers = requests.utils.default_headers()
+            headers.update({"User-Agent": "My User Agent 1.0"})
+
+            # Try to get the HTML content of the website
+            # Possible timeout or connection errors
+            try:
+                html_text = requests.get(url=url, headers=headers).text
+            except:
+                print(f"Error en la pagina {page}")
+                pages_errors.append(page)
+                continue
+
+            # Parse the HTML content of the website using BeautifulSoup
+            soup = BeautifulSoup(html_text, "lxml")
+
+            # Find all the <div> elements that contain the house cards
+            property_card = soup.find_all(
+                "div", class_="clp-publication-element clp-highlighted-container"
+            )
+
+            # Iterate over the house cards
+            for property in property_card:
+
+                # Setting up list house information
+                property_data = {key: None for key in df_columns}
+
+                # Set up property type
+                property_data["property_type"] = property_type
+
+                # Extract price
+                property_data["price"] = find_price(property)
+
+                # Extract location
+                location = find_location(property)
+
+                property_data["comuna"] = location[0]
+                property_data["ubicacion"] = location[1]
+
+                # Extreact number of dorm
+                property_data["dorms"] = find_dorms(property)
+
+                # Extract number of bathrooms
+                property_data["baths"] = find_baths(property)
+
+                # Extract Built Area
+                property_data["built_area"] = find_built_area(property)
+
+                # Extract Total Area
+                property_data["total_area"] = find_total_area(property)
+
+                # Extract number of parking
+                property_data["parking"] = find_parking(property)
+
+                # Extract id of the house
+                property_data["id"] = find_id(property)
+
+                # Extract realtor
+                property_data["realtor"] = find_realtor(property)
+
+                # Add the house information dict casa_data into the houses DataFrame casas_df
+                properties_df.loc[len(properties_df)] = property_data  # type: ignore
+
+        #TODO: Gotta refactor this poopy code
+        for page in pages_errors:
+            
+            # According to robots.txt the crawl delay is 2 seconds
+            sleep(2)
+
+            print(f"reintentando pagina: {page}", end="\r")
+
+
             url = f"https://chilepropiedades.cl/propiedades/venta/{property_type}/region-metropolitana-de-santiago-rm/{page}"
 
             # Set up custom headers with a User-Agent
@@ -254,7 +333,7 @@ def extract_data(property_types: dict[str, int]) -> pd.DataFrame:
             for property in property_card:
 
                 # Setting up list house information
-                property_data = {key: None for key in columns}
+                property_data = {key: None for key in df_columns}
 
                 # Set up property type
                 property_data["property_type"] = property_type
