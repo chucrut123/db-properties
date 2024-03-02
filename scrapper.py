@@ -298,6 +298,7 @@ def extract_data(property_types: dict[str, int]) -> pd.DataFrame:
                 properties_df.loc[len(properties_df)] = property_data  # type: ignore
 
         #TODO: Gotta refactor this poopy code
+        # Pretty shitty code
         for page in pages_errors:
             
             # According to robots.txt the crawl delay is 2 seconds
