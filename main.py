@@ -9,6 +9,8 @@ import csv
 
 db = "properties.db"
 
+
+# main function
 def main():
 
     if len(sys.argv) == 1:
